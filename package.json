@@ -1,0 +1,25 @@
+{
+  "name": "wow-tools-discord-bot",
+  "version": "1.0.0",
+  "description": "Wow tools for Mythic Dungeons",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mgochoa/wow-tools-discord-bot.git"
+  },
+  "author": "Manuel Ochoa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mgochoa/wow-tools-discord-bot/issues"
+  },
+  "homepage": "https://github.com/mgochoa/wow-tools-discord-bot#readme",
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "dotenv": "^8.0.0",
+    "nodemon": "^1.19.0"
+  }
+}
