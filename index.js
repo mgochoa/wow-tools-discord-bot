@@ -2,29 +2,45 @@ require("dotenv").config();
 const Discord = require("discord.js");
 const fs = require("fs");
 const client = new Discord.Client();
-const { RichEmbed } = require("discord.js")
+const { RichEmbed, MessageCollector } = require("discord.js")
+const request = require('request')
+const puppeteer = require('puppeteer')
 
-/*fs.readdir("./events/", (err, files) => {
-  files.forEach(file => {
-    const eventHandler = require(`./events/${file}`);
-    const eventName = file.split(".")[0];
-    client.on(eventName, (...args) => eventHandler(client, ...args));
-  });
-});*/
 
 client.on('message', message => {
-    switch (message.content) {
-        case '!mdt list':
-            const embed = new RichEmbed()
-                // Set the title of the field
-                .setTitle('List of dungeons')
-                // Set the color of the embed
-                .setColor(0xFF0000)
-                .setDescription("1. Ataldazar\n2. Ataldazar\n\n *Type a selection or cancel*")
+  switch (message.content) {
+    case '!mdt list':
+      request({
+        uri: "https://raider.io/api/news?tag=weekly-route",
+      }, async (error, response, body) => {
+        try {
+          let { articles } = JSON.parse(body)
+          const browser = await puppeteer.launch();
+          const page = await browser.newPage();
+          await page.goto("https://raider.io" + articles[0].path);
+          await page.content()
+          let messageEmbeded = new RichEmbed()
+          messageEmbeded.setTitle("Dungeons")
+          let responseText = ''
 
-            message.channel.send(embed);
-            break;
-    }
+          for (const frame of page.mainFrame().childFrames()) {
+            if (frame.url().includes('https://wago.io')) {
+              const text = await frame.$eval('#wago-header >h3 > div > span', element => element.textContent)
+              responseText = responseText.concat(`${text} - ${frame.url()}\n`)
+            }
+          }
+          messageEmbeded.setDescription(responseText)
+          message.channel.send(messageEmbeded)
+          await browser.close()
+        } catch (error) {
+          console.log(error.message)
+        }
+      })
+      break;
+    case '!mdt':
+      message.reply("Fuck you, cunt.")
+      break;
+  }
 })
 
 client.login(process.env.BOT_TOKEN);
