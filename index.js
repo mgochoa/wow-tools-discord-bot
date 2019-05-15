@@ -14,18 +14,20 @@ client.on('message', message => {
         uri: "https://raider.io/api/news?tag=weekly-route",
       }, async (error, response, body) => {
         try {
-          let { articles } = JSON.parse(body)
-          const browser = await puppeteer.launch();
-          const page = await browser.newPage();
-          await page.goto("https://raider.io" + articles[0].path);
-          await page.content()
           let messageEmbeded = new RichEmbed()
           messageEmbeded.setTitle("Dungeons")
           let responseText = ''
+          let { articles } = JSON.parse(body)
+          const browser = await puppeteer.launch();
+          const page = await browser.newPage();
+          page.setDefaultNavigationTimeout(0)
+          await page.goto("https://raider.io" + articles[0].path,{waitUntil:'networkidle2'});
+          await page.content()
+        
 
           for (const frame of page.mainFrame().childFrames()) {
             if (frame.url().includes('https://wago.io')) {
-              const text = await frame.$eval('#wago-header >h3 > div > span', element => element.textContent)
+              const text = await frame.$eval('#wago-header > h3 > div > span', element => element.textContent)
               responseText = responseText.concat(`${text} - ${frame.url()}\n`)
             }
           }
